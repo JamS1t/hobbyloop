@@ -1,61 +1,84 @@
 /* ═══════════════════════════════════════════
-   dashboard.js — Dashboard Rendering
+   dashboard.js — Dashboard Rendering (API)
    ═══════════════════════════════════════════ */
 const Dashboard = {
 
-  render() {
+  categories: [],
+  products: [],
+
+  async render() {
+    await this.loadCategories();
     this.renderCategoryFilter();
-    this.renderFiltered(State.activeCategory);
+    await this.renderFiltered(State.activeCategory);
+  },
+
+  async loadCategories() {
+    if (this.categories.length > 0) return;
+    const res = await API.get('/products/categories.php');
+    if (res.success) {
+      // Prepend "All Items" option (not in DB)
+      this.categories = [{ id: 'all', label: 'All Items' }, ...res.data];
+    }
   },
 
   renderCategoryFilter() {
     const bar = document.getElementById('cat-filter-bar');
     if (!bar) return;
-    bar.innerHTML = DB.categories.map(c => `
+    bar.innerHTML = this.categories.map(c => `
       <button class="cat-chip ${c.id === State.activeCategory ? 'active' : ''}"
         onclick="Dashboard.filterBy('${c.id}', this)">
-        ${c.emoji} ${c.label}
+        ${c.label}
       </button>`).join('');
   },
 
-  filterBy(catId, btn) {
+  async filterBy(catId, btn) {
     State.activeCategory = catId;
     document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
     if (btn) btn.classList.add('active');
-    this.renderFiltered(catId);
+    await this.renderFiltered(catId);
   },
 
-  renderFiltered(catId) {
+  async renderFiltered(catId) {
     const grid = document.getElementById('products-grid');
     if (!grid) return;
-    const products = catId === 'all'
-      ? DB.products
-      : DB.products.filter(p => p.cat === catId);
 
-    grid.innerHTML = products.map(p => this.productCardHTML(p)).join('');
+    grid.innerHTML = '<div class="loading-text">Loading products...</div>';
+
+    const path = catId && catId !== 'all'
+      ? '/products/list.php?cat=' + encodeURIComponent(catId)
+      : '/products/list.php';
+    const res = await API.get(path);
+
+    if (res.success) {
+      this.products = res.data;
+      grid.innerHTML = this.products.map(p => this.productCardHTML(p)).join('');
+    } else {
+      grid.innerHTML = '<div class="empty-state">Failed to load products</div>';
+    }
   },
 
-  addToCart(productId, btn) {
-    const product = DB.products.find(p => p.id === productId);
+  async addToCart(productId, btn) {
+    const product = this.products.find(p => p.id === productId);
     if (!product) return;
-    State.addToCart(product);
-    if (btn) { btn.textContent = '✓ In Cart'; btn.classList.add('in-cart'); }
-    Toast.show(`${product.name} added to cart 🛒`, '✓');
+    if (btn) { btn.textContent = 'Adding...'; btn.disabled = true; }
+    await State.addToCart(product);
+    if (btn) { btn.textContent = '✓ In Cart'; btn.classList.add('in-cart'); btn.disabled = false; }
+    Toast.show(`${product.name} added to cart`, '✓');
   },
 
   productCardHTML(p) {
     const inCart = State.inCart(p.id);
-    const badge = p.badge === 'hot' ? '<span class="pill pill-coral">🔥 Hot</span>'
-      : p.badge === 'top' ? '<span class="pill pill-gold">🏆 Top</span>'
-      : p.badge === 'new' ? '<span class="pill pill-teal">✨ New</span>' : '';
+    const badge = p.badge === 'hot' ? '<span class="pill pill-coral">Hot</span>'
+      : p.badge === 'top' ? '<span class="pill pill-gold">Top</span>'
+      : p.badge === 'new' ? '<span class="pill pill-teal">New</span>' : '';
     return `
-      <div class="product-card" onclick="Checkout.openProduct(DB.products.find(x=>x.id===${p.id}))">
+      <div class="product-card" onclick="ProductDetail.open(${p.id})">
         <div class="pc-img">
           ${p.img
             ? `<img src="${p.img}" alt="${p.name}" class="pc-photo" loading="lazy"
                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-               <div class="pc-img-fallback" style="display:none;"><div class="pc-img-bg" style="background:${p.bg};"></div><span class="pc-emoji">${p.emoji}</span></div>`
-            : `<div class="pc-img-bg" style="background:${p.bg};"></div><span class="pc-emoji">${p.emoji}</span>`}
+               <div class="pc-img-fallback" style="display:none;"><div class="pc-img-bg" style="background:${p.bg};"></div><span class="pc-emoji">${p.name.charAt(0)}</span></div>`
+            : `<div class="pc-img-bg" style="background:${p.bg};"></div><span class="pc-emoji">${p.name.charAt(0)}</span>`}
           ${badge ? `<div class="pc-badges">${badge}</div>` : ''}
         </div>
         <div class="pc-body">
@@ -68,7 +91,7 @@ const Dashboard = {
             </div>
             <button class="pc-add ${inCart ? 'in-cart' : ''}"
               onclick="event.stopPropagation(); Dashboard.addToCart(${p.id}, this)">
-              ${inCart ? '✓ In Cart' : '🛒 Add'}
+              ${inCart ? '✓ In Cart' : '+ Add'}
             </button>
           </div>
         </div>

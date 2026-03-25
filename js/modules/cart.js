@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════
-   cart.js — Cart Drawer (Fully Functional)
+   cart.js — Cart Drawer (API-backed)
    ═══════════════════════════════════════════ */
 const Cart = {
   open: false,
@@ -24,7 +24,6 @@ const Cart = {
       badge.textContent = count;
       badge.style.display = count > 0 ? 'flex' : 'none';
     }
-    // Update cart button in topbar
     const btn = document.getElementById('cart-count-lbl');
     if (btn) btn.textContent = count > 0 ? count : '';
   },
@@ -47,15 +46,31 @@ const Cart = {
 
     if (!hasItems) return;
 
-    itemsEl.innerHTML = items.map(({ product: p, qty }) => `
+    // Select All checkbox
+    const allSelected = items.every(i => i.selected);
+    const noneSelected = items.every(i => !i.selected);
+    const selectAllChecked = allSelected ? 'checked' : '';
+
+    let html = `
+      <div class="cart-select-all">
+        <label>
+          <input type="checkbox" class="cart-item-check" ${selectAllChecked} onchange="State.selectAllCart(this.checked)">
+          <span>Select All (${items.length})</span>
+        </label>
+      </div>`;
+
+    html += items.map(({ product: p, qty, selected }) => `
       <div class="cart-item">
+        <input type="checkbox" class="cart-item-check" ${selected ? 'checked' : ''}
+          onchange="event.stopPropagation(); State.toggleCartItemSelected(${p.id})"
+          onclick="event.stopPropagation()">
         <div class="cart-item-thumb" style="overflow:hidden;">${p.img
-          ? `<img src="${p.img}" alt="${p.emoji}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`
-          : `<div style="background:${p.bg};width:100%;height:100%;display:flex;align-items:center;justify-content:center;border-radius:inherit;">${p.emoji}</div>`}</div>
+          ? `<img src="${p.img}" alt="${API.esc(p.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`
+          : `<div style="background:${p.bg};width:100%;height:100%;display:flex;align-items:center;justify-content:center;border-radius:inherit;font-family:var(--font-display);font-size:20px;color:rgba(255,255,255,0.7);font-weight:700;">${p.name.charAt(0)}</div>`}</div>
         <div class="cart-item-info">
-          <div class="cart-item-cat">${DB.categories.find(c => c.id === p.cat)?.label || p.cat}</div>
-          <div class="cart-item-name">${p.name}</div>
-          <div class="cart-item-cond">Condition: ${p.cond}</div>
+          <div class="cart-item-cat">${API.esc(p.cat_label || p.cat)}</div>
+          <div class="cart-item-name">${API.esc(p.name)}</div>
+          <div class="cart-item-cond">Condition: ${API.esc(p.cond)}</div>
           <div class="cart-item-row">
             <div class="cart-qty-ctrl">
               <button class="qty-btn" onclick="State.updateQty(${p.id}, -1)">−</button>
@@ -68,10 +83,13 @@ const Cart = {
         </div>
       </div>`).join('');
 
-    // Summary
-    const sub  = State.getCartTotal();
-    const disc = State.cart.length > 1 ? Math.round(sub * 0.03) : 0;
-    const ship = 280;
+    itemsEl.innerHTML = html;
+
+    // Summary — only selected items
+    const selectedItems = State.getSelectedItems();
+    const sub  = selectedItems.reduce((sum, i) => sum + i.product.price * i.qty, 0);
+    const disc = selectedItems.length > 1 ? Math.round(sub * 0.03) : 0;
+    const ship = selectedItems.length > 0 ? 280 : 0;
     const total = sub - disc + ship;
 
     document.getElementById('cart-sub').textContent  = '₱' + sub.toLocaleString();
@@ -81,10 +99,17 @@ const Cart = {
 
     const discRow = document.getElementById('cart-disc-row');
     if (discRow) discRow.style.display = disc > 0 ? 'flex' : 'none';
+
+    // Update select all indeterminate state
+    const selectAllCb = itemsEl.querySelector('.cart-select-all input');
+    if (selectAllCb) {
+      selectAllCb.indeterminate = !allSelected && !noneSelected;
+    }
   },
 
   goCheckout() {
-    if (State.cart.length === 0) { Toast.show('Your cart is empty', 'ℹ️'); return; }
+    if (State.cart.length === 0) { Toast.show('Your cart is empty', 'i'); return; }
+    if (State.getSelectedItems().length === 0) { Toast.show('Select at least one item to checkout', 'i'); return; }
     this.close();
     Checkout.open();
   }

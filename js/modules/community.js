@@ -20,7 +20,7 @@ const Community = {
         </div>
         <div class="composer-actions">
           <button class="composer-action-btn btn" onclick="Community.attachProduct()">📦 Tag Item</button>
-          <button class="composer-action-btn btn" onclick="Toast.show('Photo upload coming soon!', '📷')">📷 Photo</button>
+          <button class="composer-action-btn btn" onclick="Toast.show('Photo upload coming soon!', 'i')">📷 Photo</button>
           <button class="btn btn-primary-sm composer-post-btn" onclick="Community.submitPost()">Post</button>
         </div>
       </div>`;
@@ -32,14 +32,14 @@ const Community = {
   postHTML(post) {
     const product = post.productId ? DB.products.find(p => p.id === post.productId) : null;
     const productHTML = product ? `
-      <div class="post-product-card" onclick="Checkout.openProduct(DB.products.find(x=>x.id===${product.id}))">
+      <div class="post-product-card" onclick="ProductDetail.open(${product.id})">
         <div class="post-prod-thumb" style="overflow:hidden;">${product.img
-          ? `<img src="${product.img}" alt="${product.emoji}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`
-          : product.emoji}</div>
+          ? `<img src="${product.img}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`
+          : product.name.charAt(0)}</div>
         <div class="post-prod-info">
           <div class="post-prod-name">${product.name}</div>
           <div class="post-prod-price">₱${product.price.toLocaleString()}</div>
-          <div class="post-prod-cond">${product.cond} · ⭐ ${product.rating}</div>
+          <div class="post-prod-cond">${product.cond} · ${product.rating}</div>
         </div>
         <button class="post-prod-btn" onclick="event.stopPropagation(); Dashboard.addToCart(${product.id}, this)">
           ${State.inCart(product.id) ? '✓ In Cart' : 'Add to Cart'}
@@ -60,12 +60,12 @@ const Community = {
         ${productHTML}
         <div class="post-actions">
           <button class="post-action-btn ${post.liked ? 'liked' : ''}" onclick="Community.toggleLike(${post.id}, this)">
-            ${post.liked ? '❤️' : '🤍'} <span>${post.likes}</span>
+            ${post.liked ? '❤️ Liked' : '🤍 Like'} <span>${post.likes}</span>
           </button>
-          <button class="post-action-btn" onclick="Toast.show('Comments coming soon!', '💬')">
-            💬 <span>${post.comments}</span>
+          <button class="post-action-btn" onclick="Toast.show('Comments coming soon!', 'i')">
+            💬 Comments <span>${post.comments}</span>
           </button>
-          <button class="post-action-btn" onclick="Toast.show('Shared to clipboard!', '🔗')">
+          <button class="post-action-btn" onclick="Toast.show('Shared to clipboard!', '✓')">
             🔗 Share
           </button>
         </div>
@@ -110,7 +110,7 @@ const Community = {
     post.liked = !post.liked;
     post.likes += post.liked ? 1 : -1;
     btn.classList.toggle('liked', post.liked);
-    btn.innerHTML = `${post.liked ? '❤️' : '🤍'} <span>${post.likes}</span>`;
+    btn.innerHTML = `${post.liked ? '❤️ Liked' : '🤍 Like'} <span>${post.likes}</span>`;
   },
 
   toggleFollow(userId, btn) {
@@ -128,13 +128,13 @@ const Community = {
   },
 
   attachProduct() {
-    Toast.show('Select any item and tag it to your post', 'ℹ️');
+    Toast.show('Select any item and tag it to your post', 'i');
   },
 
   submitPost() {
     const textarea = document.getElementById('composer-text');
     const text = textarea ? textarea.value.trim() : '';
-    if (!text) { Toast.show('Write something before posting!', 'ℹ️'); return; }
+    if (!text) { Toast.show('Write something before posting!', 'i'); return; }
     const newPost = {
       id: Date.now(),
       userId: 0,
@@ -152,6 +152,6 @@ const Community = {
     DB.communityPosts.unshift(newPost);
     if (textarea) textarea.value = '';
     this.render();
-    Toast.show('Post shared with the community! 🎉', '✓');
+    Toast.show('Post shared with the community!', '✓');
   }
 };

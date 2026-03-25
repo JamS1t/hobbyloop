@@ -28,8 +28,7 @@
   <div class="login-panel-left">
     <div class="login-brand-wrap">
       <div class="login-logo">
-        <div class="mark">🎯</div>
-        <span class="name">Hobby<span style="color:#5DE8D8;">Loop</span></span>
+        <span class="name">hobbyloop</span>
       </div>
       <div class="login-headline">
         Your hobby<br>community's<br><em>marketplace.</em>
@@ -38,13 +37,13 @@
     </div>
 
     <div class="login-cats">
-      <div class="login-cat-chip">🎨 Creative Arts</div>
-      <div class="login-cat-chip">🏕️ Outdoor & Nature</div>
-      <div class="login-cat-chip">🔬 Technical & STEM</div>
-      <div class="login-cat-chip">🏋️ Physical Sports</div>
-      <div class="login-cat-chip">🍳 Culinary Arts</div>
-      <div class="login-cat-chip">🎲 Gaming & Strategy</div>
-      <div class="login-cat-chip">🏆 Collecting</div>
+      <div class="login-cat-chip">Creative Arts</div>
+      <div class="login-cat-chip">Outdoor & Nature</div>
+      <div class="login-cat-chip">Technical & STEM</div>
+      <div class="login-cat-chip">Physical Sports</div>
+      <div class="login-cat-chip">Culinary Arts</div>
+      <div class="login-cat-chip">Gaming & Strategy</div>
+      <div class="login-cat-chip">Collecting</div>
     </div>
 
     <div class="login-social-proof">
@@ -69,7 +68,7 @@
 
   <div class="login-panel-right">
     <div class="login-form-wrap">
-      <h1 class="login-greet">Welcome back 👋</h1>
+      <h1 class="login-greet">Welcome back</h1>
       <p class="login-greet-sub">Sign in to explore thousands of hobby listings.</p>
 
       <div class="form-tabs-row">
@@ -164,7 +163,7 @@
     <div id="cart-footer" class="cart-ft" style="display:none;">
       <div class="cart-summary">
         <div class="cart-sum-row"><span>Subtotal</span><span class="val" id="cart-sub">₱0</span></div>
-        <div class="cart-sum-row disc" id="cart-disc-row" style="display:none;"><span>🏷️ Multi-item discount (3%)</span><span class="val" id="cart-disc">₱0</span></div>
+        <div class="cart-sum-row disc" id="cart-disc-row" style="display:none;"><span>Multi-item discount (3%)</span><span class="val" id="cart-disc">₱0</span></div>
         <div class="cart-sum-row"><span>Shipping</span><span class="val" id="cart-ship">₱280</span></div>
         <div class="cart-sum-row total"><span>Total</span><span id="cart-total">₱0</span></div>
       </div>
@@ -180,7 +179,7 @@
     </div>
     <div class="notif-list" id="notif-list"></div>
     <div class="notif-footer">
-      <button onclick="Notifications.close(); Toast.show('Full notification history coming soon!','ℹ️')">View all notifications</button>
+      <button onclick="Notifications.close(); Toast.show('Full notification history coming soon!','i')">View all notifications</button>
     </div>
   </div>
 
@@ -188,8 +187,7 @@
     <!-- ── Sidebar ── -->
     <aside class="sidebar">
       <div class="sidebar-brand">
-        <div class="brand-mark">🎯</div>
-        <div class="brand-name">Hobby<span>Loop</span></div>
+        <div class="brand-name">hobbyloop</div>
       </div>
 
       <div class="nav-section-label">Marketplace</div>
@@ -214,7 +212,7 @@
 
       <div class="nav-section-label">Account</div>
       <nav class="nav">
-        <button class="nav-link" onclick="Toast.show('Profile settings coming soon!','ℹ️')">
+        <button class="nav-link" onclick="Toast.show('Profile settings coming soon!','i')">
           <span class="nav-icon">👤</span> My Profile
         </button>
         <button class="nav-link" onclick="Auth.logout()">
@@ -265,7 +263,7 @@
           <!-- Hero -->
           <div class="hero-banner anim-fadeUp">
             <div class="hero-text">
-              <h2>Good morning, Alex ☀️</h2>
+              <h2>Good morning, Alex</h2>
               <p>340 new verified listings this week across 7 hobby categories.</p>
             </div>
             <button class="hero-cta" onclick="Dashboard.filterBy('all', null); document.getElementById('products-grid').scrollIntoView({behavior:'smooth'});">Browse All Items →</button>
@@ -274,25 +272,21 @@
           <!-- Stats -->
           <div class="stats-row">
             <div class="stat-tile anim-fadeUp delay-1">
-              <div class="stat-ico t">📦</div>
               <span class="stat-num">3</span>
               <div class="stat-lbl">Active Listings</div>
               <div class="stat-delta up">↑ 1 this week</div>
             </div>
             <div class="stat-tile anim-fadeUp delay-2">
-              <div class="stat-ico g">✅</div>
               <span class="stat-num">12</span>
               <div class="stat-lbl">Completed Purchases</div>
               <div class="stat-delta up">↑ 3 this month</div>
             </div>
             <div class="stat-tile anim-fadeUp delay-3">
-              <div class="stat-ico v">⭐</div>
               <span class="stat-num">4.9</span>
               <div class="stat-lbl">Seller Rating</div>
               <div class="stat-delta up">↑ from 4.7</div>
             </div>
             <div class="stat-tile anim-fadeUp delay-4">
-              <div class="stat-ico s">👥</div>
               <span class="stat-num">28</span>
               <div class="stat-lbl">Community Followers</div>
               <div class="stat-delta up">↑ 5 new</div>
@@ -301,7 +295,7 @@
 
           <!-- Category Filter -->
           <div class="section-hd">
-            <div class="section-hd-title">🏪 Browse by Category</div>
+            <div class="section-hd-title">Browse by Category</div>
           </div>
           <div class="cat-filter-bar" id="cat-filter-bar"></div>
 
@@ -311,16 +305,21 @@
         </div>
       </div>
 
+      <!-- ════════ TAB: PRODUCT DETAIL ════════ -->
+      <div class="tab-panel" data-tab="product-detail">
+        <div class="product-detail-page" id="product-detail-page"></div>
+      </div>
+
       <!-- ════════ TAB: COMMUNITY ════════ -->
       <div class="tab-panel" data-tab="community">
         <div class="topbar" style="position:sticky;top:65px;z-index:90;border-top:1px solid var(--ink-06);">
           <div style="display:flex;gap:8px;overflow-x:auto;">
-            <button class="cat-chip active" onclick="Toast.show('Showing all posts','ℹ️')">🏠 For You</button>
-            <button class="cat-chip" onclick="Toast.show('Following feed','ℹ️')">👥 Following</button>
-            <button class="cat-chip" onclick="Toast.show('Creative Arts feed','🎨')">🎨 Creative</button>
-            <button class="cat-chip" onclick="Toast.show('Outdoor feed','🏕️')">🏕️ Outdoor</button>
-            <button class="cat-chip" onclick="Toast.show('Gaming feed','🎲')">🎲 Gaming</button>
-            <button class="cat-chip" onclick="Toast.show('Culinary feed','🍳')">🍳 Culinary</button>
+            <button class="cat-chip active" onclick="Toast.show('Showing all posts','i')">For You</button>
+            <button class="cat-chip" onclick="Toast.show('Following feed','i')">Following</button>
+            <button class="cat-chip" onclick="Toast.show('Creative Arts feed','i')">Creative</button>
+            <button class="cat-chip" onclick="Toast.show('Outdoor feed','i')">Outdoor</button>
+            <button class="cat-chip" onclick="Toast.show('Gaming feed','i')">Gaming</button>
+            <button class="cat-chip" onclick="Toast.show('Culinary feed','i')">Culinary</button>
           </div>
         </div>
         <div class="community-layout">
@@ -337,9 +336,9 @@
             <div class="cs-widget">
               <div class="cs-widget-title">🛡️ How HobbyLoop Works</div>
               <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
-                <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:20px;">🔍</span><div><div style="font-size:13px;font-weight:700;margin-bottom:2px;">Peer Reviewed</div><div style="font-size:12px;color:var(--text-muted);line-height:1.5;">Every listing verified by certified community inspectors.</div></div></div>
-                <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:20px;">✅</span><div><div style="font-size:13px;font-weight:700;margin-bottom:2px;">Condition Guaranteed</div><div style="font-size:12px;color:var(--text-muted);line-height:1.5;">Buyer protection kicks in if item doesn't match description.</div></div></div>
-                <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:20px;">🤝</span><div><div style="font-size:13px;font-weight:700;margin-bottom:2px;">Real Community</div><div style="font-size:12px;color:var(--text-muted);line-height:1.5;">Verified reviews from real buyers. Zero fake ratings.</div></div></div>
+                <div style="display:flex;gap:10px;align-items:flex-start;"><span class="hiw-ico">1</span><div><div style="font-size:13px;font-weight:700;margin-bottom:2px;">Peer Reviewed</div><div style="font-size:12px;color:var(--text-muted);line-height:1.5;">Every listing verified by certified community inspectors.</div></div></div>
+                <div style="display:flex;gap:10px;align-items:flex-start;"><span class="hiw-ico">2</span><div><div style="font-size:13px;font-weight:700;margin-bottom:2px;">Condition Guaranteed</div><div style="font-size:12px;color:var(--text-muted);line-height:1.5;">Buyer protection kicks in if item doesn't match description.</div></div></div>
+                <div style="display:flex;gap:10px;align-items:flex-start;"><span class="hiw-ico">3</span><div><div style="font-size:13px;font-weight:700;margin-bottom:2px;">Real Community</div><div style="font-size:12px;color:var(--text-muted);line-height:1.5;">Verified reviews from real buyers. Zero fake ratings.</div></div></div>
               </div>
             </div>
           </div>
@@ -366,16 +365,26 @@
           <!-- Step 1: Cart Review -->
           <div class="checkout-step" id="checkout-step-1">
             <div class="checkout-section">
-              <div class="cs-title"><div class="cs-title-ico">🛒</div> Review Your Cart</div>
+              <div class="cs-title"><div class="cs-title-ico">1</div> Review Your Cart</div>
               <div id="wiz-cart-items"></div>
               <div id="wiz-cart-empty" style="display:none;">
                 <div class="empty-state">
-                  <div class="empty-icon">🛒</div>
+                  <div class="empty-icon" style="font-size:48px;opacity:0.3;">🛒</div>
                   <div class="empty-title">Your cart is empty</div>
                   <div class="empty-sub">Add items from the dashboard to get started.</div>
                   <button class="btn btn-primary-sm" style="margin-top:16px;" onclick="Nav.goTab('dashboard'); Dashboard.render();">Browse Items</button>
                 </div>
               </div>
+              <!-- Promo Code -->
+              <div class="promo-code-wrap" style="margin-top:16px;">
+                <div style="font-weight:600;font-size:14px;margin-bottom:8px;">Have a promo code?</div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input class="form-input" id="promo-code-input" type="text" placeholder="Enter code (e.g. HOBBY10)" style="flex:1;text-transform:uppercase;">
+                  <button class="btn btn-primary-sm" id="promo-apply-btn" onclick="Checkout.applyPromo()" style="white-space:nowrap;">Apply</button>
+                </div>
+                <div id="promo-msg" class="promo-msg" style="margin-top:6px;font-size:13px;min-height:18px;"></div>
+              </div>
+
               <div id="wiz-cart-summary" class="op-summary" style="margin-top:16px;"></div>
             </div>
             <div class="checkout-nav-btns">
@@ -387,7 +396,7 @@
           <!-- Step 2: Shipping -->
           <div class="checkout-step" id="checkout-step-2" style="display:none;">
             <div class="checkout-section">
-              <div class="cs-title"><div class="cs-title-ico">📦</div> Shipping Details</div>
+              <div class="cs-title"><div class="cs-title-ico">2</div> Shipping Details</div>
               <div class="form-row" style="margin-bottom:14px;">
                 <div class="form-group"><label class="form-label">First Name *</label><input class="form-input" id="ship-fname" type="text" placeholder="Alex"></div>
                 <div class="form-group"><label class="form-label">Last Name *</label><input class="form-input" id="ship-lname" type="text" placeholder="Kim"></div>
@@ -409,7 +418,7 @@
           <!-- Step 3: Payment -->
           <div class="checkout-step" id="checkout-step-3" style="display:none;">
             <div class="checkout-section">
-              <div class="cs-title"><div class="cs-title-ico">💳</div> Payment Method</div>
+              <div class="cs-title"><div class="cs-title-ico">3</div> Payment Method</div>
               <label class="payment-option selected" onclick="Checkout.selectPayment(this)">
                 <input type="radio" name="pay" value="card" checked>
                 <span class="pay-ico">💳</span>
@@ -439,12 +448,11 @@
                 <div class="form-group"><label class="form-label">Name on Card</label><input class="form-input" id="pay-card-name" type="text" placeholder="Alex Kim"></div>
               </div>
               <div id="pay-gcash-fields" style="display:none;padding:20px;text-align:center;background:var(--paper-warm);border-radius:var(--r-md);margin-top:14px;">
-                <div style="font-size:40px;margin-bottom:8px;">📱</div>
                 <div style="font-weight:600;margin-bottom:4px;">GCash Payment</div>
                 <div style="font-size:13px;color:var(--text-muted);">You will receive a GCash payment request after placing your order.</div>
               </div>
               <div id="pay-bank-fields" style="display:none;padding:20px;background:var(--paper-warm);border-radius:var(--r-md);margin-top:14px;">
-                <div style="font-weight:600;margin-bottom:8px;">🏦 Bank Transfer Details</div>
+                <div style="font-weight:600;margin-bottom:8px;">Bank Transfer Details</div>
                 <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">
                   Account Name: HobbyLoop Inc.<br>
                   BDO: 1234-5678-9012<br>
@@ -462,7 +470,7 @@
           <!-- Step 4: Confirm -->
           <div class="checkout-step" id="checkout-step-4" style="display:none;">
             <div class="checkout-section">
-              <div class="cs-title"><div class="cs-title-ico">✅</div> Order Summary</div>
+              <div class="cs-title"><div class="cs-title-ico">4</div> Order Summary</div>
               <div id="wiz-confirm-items"></div>
               <hr style="border:none;border-top:1px solid var(--ink-06);margin:16px 0;">
               <div id="wiz-confirm-shipping"></div>
@@ -526,12 +534,14 @@
 <script src="js/data.js"></script>
 <script src="js/utils/toast.js"></script>
 <script src="js/utils/storage.js"></script>
+<script src="js/api.js"></script>
 <script src="js/modules/state.js"></script>
 <script src="js/modules/auth.js"></script>
 <script src="js/modules/search.js"></script>
 <script src="js/modules/notifications.js"></script>
 <script src="js/modules/cart.js"></script>
 <script src="js/modules/dashboard.js"></script>
+<script src="js/modules/product-detail.js"></script>
 <script src="js/modules/community.js"></script>
 <script src="js/modules/checkout.js"></script>
 <script src="js/modules/orders.js"></script>
@@ -546,7 +556,8 @@
     // Tab title sync
     const tabTitles = {
       dashboard: 'Discover', community: 'Community',
-      checkout: 'Checkout', orders: 'My Orders', success: 'Order Confirmed'
+      checkout: 'Checkout', orders: 'My Orders', success: 'Order Confirmed',
+      'product-detail': 'Product Details'
     };
     const origGoTab = Nav.goTab.bind(Nav);
     Nav.goTab = function(tab) {
