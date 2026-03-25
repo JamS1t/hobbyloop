@@ -8,6 +8,7 @@ const State = {
   currentTab: 'dashboard',
   cart: [],          // { product, qty, selected }
   orders: [],        // completed orders
+  wishlist: [],      // product IDs the user has wishlisted
   activeCategory: 'all',
   searchQuery: '',
   notifCount: 0,     // unread count (loaded from server)
@@ -120,6 +121,36 @@ const State = {
     if (res.success) {
       this.orders = res.data;
     }
+  },
+
+  // ── Wishlist ──
+
+  async loadWishlist() {
+    const res = await API.get('/wishlist/index.php');
+    if (res.success) {
+      this.wishlist = res.data.map(p => p.id);
+    }
+  },
+
+  isWishlisted(productId) {
+    return this.wishlist.includes(productId);
+  },
+
+  async toggleWishlist(productId) {
+    if (this.isWishlisted(productId)) {
+      const res = await API.del('/wishlist/index.php', { product_id: productId });
+      if (res.success) {
+        this.wishlist = this.wishlist.filter(id => id !== productId);
+        return false;
+      }
+    } else {
+      const res = await API.post('/wishlist/index.php', { product_id: productId });
+      if (res.success) {
+        this.wishlist.push(productId);
+        return true;
+      }
+    }
+    return this.isWishlisted(productId);
   }
 };
 

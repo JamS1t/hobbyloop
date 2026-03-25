@@ -43,6 +43,7 @@ const Search = {
     const dd = document.getElementById('search-results');
     if (!dd) return;
 
+    API.track('search', { search_query: q });
     const res = await API.get('/products/search.php?q=' + encodeURIComponent(q));
 
     if (!res.success) {

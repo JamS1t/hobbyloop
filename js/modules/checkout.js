@@ -384,6 +384,7 @@ const Checkout = {
     // Re-enable button for next time
     if (orderBtn) { orderBtn.disabled = false; orderBtn.textContent = '🔒 Place Order'; }
 
+    API.track('checkout_complete', { target_id: res.data.order_id });
     Nav.goTab('success');
 
     // Update notification badge

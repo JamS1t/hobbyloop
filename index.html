@@ -212,6 +212,12 @@
 
       <div class="nav-section-label">Account</div>
       <nav class="nav">
+        <button class="nav-link" data-tab="wishlist" onclick="Nav.goTab('wishlist'); Wishlist.render();">
+          <span class="nav-icon">♥</span> Wishlist
+        </button>
+        <button class="nav-link" data-tab="feedback" onclick="Nav.goTab('feedback'); Feedback.render();">
+          <span class="nav-icon">💬</span> Feedback
+        </button>
         <button class="nav-link" onclick="Toast.show('Profile settings coming soon!','i')">
           <span class="nav-icon">👤</span> My Profile
         </button>
@@ -502,6 +508,43 @@
         </div>
       </div>
 
+      <!-- ════════ TAB: WISHLIST ════════ -->
+      <div class="tab-panel" data-tab="wishlist">
+        <div class="orders-body">
+          <div class="section-hd" style="margin-bottom:24px;">
+            <div class="section-hd-title">♥ My Wishlist</div>
+          </div>
+          <div id="wishlist-grid" class="products-grid"></div>
+        </div>
+      </div>
+
+      <!-- ════════ TAB: FEEDBACK ════════ -->
+      <div class="tab-panel" data-tab="feedback">
+        <div class="orders-body">
+          <div class="section-hd" style="margin-bottom:24px;">
+            <div class="section-hd-title">💬 Feedback &amp; Support</div>
+          </div>
+
+          <!-- Submit new feedback -->
+          <div class="feedback-form-wrap">
+            <div style="font-weight:700;font-size:15px;margin-bottom:16px;">Send a Message</div>
+            <div class="form-group">
+              <label class="form-label">Subject</label>
+              <input class="form-input" id="feedback-subject" type="text" placeholder="e.g. Issue with my order, Question about a listing">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Message</label>
+              <textarea class="form-input review-textarea" id="feedback-message" placeholder="Describe your concern or question..." rows="4"></textarea>
+            </div>
+            <button class="btn btn-primary-sm" onclick="Feedback.submit()">Send Message</button>
+          </div>
+
+          <!-- Existing feedback list -->
+          <div style="font-weight:700;font-size:15px;margin:28px 0 16px;">Your Messages</div>
+          <div id="feedback-list"></div>
+        </div>
+      </div>
+
       <!-- ════════ TAB: SUCCESS ════════ -->
       <div class="tab-panel" data-tab="success">
         <div class="topbar" style="position:sticky;top:65px;border-top:1px solid var(--ink-06);">
@@ -547,6 +590,131 @@
 <script src="js/modules/orders.js"></script>
 
 <script>
+  // ══════════════════════════════════════════
+  // Wishlist — renders wishlisted products
+  // ══════════════════════════════════════════
+  const Wishlist = {
+    async render() {
+      const grid = document.getElementById('wishlist-grid');
+      if (!grid) return;
+      grid.innerHTML = '<div class="loading-text">Loading wishlist...</div>';
+
+      const res = await API.get('/wishlist/index.php');
+      if (!res.success || res.data.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon" style="font-size:48px;opacity:0.3;">♥</div>
+            <div class="empty-title">Your wishlist is empty</div>
+            <div class="empty-sub">Heart products on the dashboard to save them here.</div>
+            <button class="btn btn-primary-sm" style="margin-top:16px;" onclick="Nav.goTab('dashboard'); Dashboard.render();">Browse Items</button>
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = res.data.map(p => {
+        const isWished = true; // all items here are wishlisted
+        const lowStock = p.stock_qty > 0 && p.stock_qty <= 5;
+        const outOfStock = p.stock_qty === 0;
+        const badge = p.badge === 'hot' ? '<span class="pill pill-coral">Hot</span>'
+          : p.badge === 'top' ? '<span class="pill pill-gold">Top</span>'
+          : p.badge === 'new' ? '<span class="pill pill-teal">New</span>' : '';
+        const stockBadge = outOfStock
+          ? '<span class="pill pill-stock-out">Out of Stock</span>'
+          : lowStock ? `<span class="pill pill-low-stock">Only ${p.stock_qty} left</span>` : '';
+
+        return `
+          <div class="product-card" onclick="ProductDetail.open(${p.id})">
+            <div class="pc-img">
+              ${p.img
+                ? `<img src="${p.img}" alt="${p.name}" class="pc-photo" loading="lazy"
+                       onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                   <div class="pc-img-fallback" style="display:none;"><div class="pc-img-bg" style="background:${p.bg};"></div><span class="pc-emoji">${p.name.charAt(0)}</span></div>`
+                : `<div class="pc-img-bg" style="background:${p.bg};"></div><span class="pc-emoji">${p.name.charAt(0)}</span>`}
+              ${badge || stockBadge ? `<div class="pc-badges">${badge}${stockBadge}</div>` : ''}
+              <button class="pc-wishlist wishlisted" title="Remove from Wishlist"
+                onclick="event.stopPropagation(); State.toggleWishlist(${p.id}).then(() => Wishlist.render());">♥</button>
+            </div>
+            <div class="pc-body">
+              <div class="pc-name">${p.name}</div>
+              <div class="pc-cond">${p.cond}</div>
+              <div class="pc-foot">
+                <div>
+                  <span class="pc-price">₱${p.price.toLocaleString()}</span>
+                  ${p.orig ? `<span class="pc-price-orig">₱${p.orig.toLocaleString()}</span>` : ''}
+                </div>
+                <button class="pc-add ${outOfStock ? 'disabled' : ''}" ${outOfStock ? 'disabled' : ''}
+                  onclick="event.stopPropagation(); State.addToCart(${JSON.stringify({id:p.id,name:p.name,price:p.price,bg:p.bg,img:p.img,cond:p.cond,seller:p.seller})}).then(() => Toast.show('${p.name.replace(/'/g,"\\'")} added to cart','✓'))">
+                  ${outOfStock ? 'Sold Out' : '+ Add'}
+                </button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+  };
+
+  // ══════════════════════════════════════════
+  // Feedback — submit and list user feedback
+  // ══════════════════════════════════════════
+  const Feedback = {
+    async render() {
+      const list = document.getElementById('feedback-list');
+      if (!list) return;
+      list.innerHTML = '<div class="loading-text">Loading messages...</div>';
+
+      const res = await API.get('/feedback/list.php');
+      if (!res.success || res.data.length === 0) {
+        list.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:12px 0;">No messages yet.</div>';
+        return;
+      }
+
+      const statusColors = {
+        open:        'var(--gold)',
+        in_progress: 'var(--teal)',
+        resolved:    'var(--sage)',
+        closed:      'var(--text-muted)'
+      };
+      const statusLabels = {
+        open: 'Open', in_progress: 'In Progress', resolved: 'Resolved', closed: 'Closed'
+      };
+
+      list.innerHTML = res.data.map(f => `
+        <div class="feedback-item">
+          <div class="feedback-item-hd">
+            <div class="feedback-subject">${API.esc(f.subject)}</div>
+            <span class="pill" style="background:${statusColors[f.status] || 'var(--text-muted)'}22;color:${statusColors[f.status] || 'var(--text-muted)'};">
+              ${statusLabels[f.status] || f.status}
+            </span>
+          </div>
+          <div class="feedback-msg">${API.esc(f.message)}</div>
+          ${f.admin_reply ? `
+            <div class="feedback-reply">
+              <div class="feedback-reply-label">HobbyLoop Support replied:</div>
+              <div>${API.esc(f.admin_reply)}</div>
+            </div>` : ''}
+          <div class="feedback-date">${f.date}</div>
+        </div>`).join('');
+    },
+
+    async submit() {
+      const subject = document.getElementById('feedback-subject')?.value.trim();
+      const message = document.getElementById('feedback-message')?.value.trim();
+      if (!subject) { Toast.show('Please enter a subject', 'i'); return; }
+      if (!message || message.length < 10) { Toast.show('Message must be at least 10 characters', 'i'); return; }
+
+      const res = await API.post('/feedback/submit.php', { subject, message });
+      if (!res.success) {
+        Toast.show(res.error || 'Failed to send message', 'i');
+        return;
+      }
+
+      Toast.show('Message sent! We\'ll get back to you soon.', '✓');
+      document.getElementById('feedback-subject').value = '';
+      document.getElementById('feedback-message').value = '';
+      this.render();
+    }
+  };
+
   // ── Boot ──
   document.addEventListener('DOMContentLoaded', () => {
     Auth.init();
@@ -557,7 +725,8 @@
     const tabTitles = {
       dashboard: 'Discover', community: 'Community',
       checkout: 'Checkout', orders: 'My Orders', success: 'Order Confirmed',
-      'product-detail': 'Product Details'
+      'product-detail': 'Product Details', wishlist: 'My Wishlist',
+      feedback: 'Feedback & Support'
     };
     const origGoTab = Nav.goTab.bind(Nav);
     Nav.goTab = function(tab) {

@@ -64,13 +64,37 @@ const Dashboard = {
     await State.addToCart(product);
     if (btn) { btn.textContent = '✓ In Cart'; btn.classList.add('in-cart'); btn.disabled = false; }
     Toast.show(`${product.name} added to cart`, '✓');
+    API.track('add_to_cart', { target_id: productId });
+  },
+
+  async toggleWishlist(productId, btn) {
+    const wasWishlisted = State.isWishlisted(productId);
+    if (btn) btn.disabled = true;
+    const nowWishlisted = await State.toggleWishlist(productId);
+    if (btn) {
+      btn.disabled = false;
+      btn.classList.toggle('wishlisted', nowWishlisted);
+      btn.title = nowWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist';
+    }
+    Toast.show(nowWishlisted ? 'Added to Wishlist' : 'Removed from Wishlist', nowWishlisted ? '♥' : '♡');
   },
 
   productCardHTML(p) {
-    const inCart = State.inCart(p.id);
+    const inCart      = State.inCart(p.id);
+    const isWished    = State.isWishlisted(p.id);
+    const lowStock    = p.stock_qty > 0 && p.stock_qty <= 5;
+    const outOfStock  = p.stock_qty === 0;
+
     const badge = p.badge === 'hot' ? '<span class="pill pill-coral">Hot</span>'
       : p.badge === 'top' ? '<span class="pill pill-gold">Top</span>'
       : p.badge === 'new' ? '<span class="pill pill-teal">New</span>' : '';
+
+    const stockBadge = outOfStock
+      ? '<span class="pill pill-stock-out">Out of Stock</span>'
+      : lowStock
+      ? `<span class="pill pill-low-stock">Only ${p.stock_qty} left</span>`
+      : '';
+
     return `
       <div class="product-card" onclick="ProductDetail.open(${p.id})">
         <div class="pc-img">
@@ -79,7 +103,12 @@ const Dashboard = {
                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                <div class="pc-img-fallback" style="display:none;"><div class="pc-img-bg" style="background:${p.bg};"></div><span class="pc-emoji">${p.name.charAt(0)}</span></div>`
             : `<div class="pc-img-bg" style="background:${p.bg};"></div><span class="pc-emoji">${p.name.charAt(0)}</span>`}
-          ${badge ? `<div class="pc-badges">${badge}</div>` : ''}
+          ${badge || stockBadge ? `<div class="pc-badges">${badge}${stockBadge}</div>` : ''}
+          <button class="pc-wishlist ${isWished ? 'wishlisted' : ''}"
+            title="${isWished ? 'Remove from Wishlist' : 'Add to Wishlist'}"
+            onclick="event.stopPropagation(); Dashboard.toggleWishlist(${p.id}, this);">
+            ${isWished ? '♥' : '♡'}
+          </button>
         </div>
         <div class="pc-body">
           <div class="pc-name">${p.name}</div>
@@ -89,9 +118,10 @@ const Dashboard = {
               <span class="pc-price">₱${p.price.toLocaleString()}</span>
               ${p.orig ? `<span class="pc-price-orig">₱${p.orig.toLocaleString()}</span>` : ''}
             </div>
-            <button class="pc-add ${inCart ? 'in-cart' : ''}"
+            <button class="pc-add ${inCart ? 'in-cart' : ''} ${outOfStock ? 'disabled' : ''}"
+              ${outOfStock ? 'disabled' : ''}
               onclick="event.stopPropagation(); Dashboard.addToCart(${p.id}, this)">
-              ${inCart ? '✓ In Cart' : '+ Add'}
+              ${inCart ? '✓ In Cart' : outOfStock ? 'Sold Out' : '+ Add'}
             </button>
           </div>
         </div>

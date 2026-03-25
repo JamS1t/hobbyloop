@@ -4,9 +4,9 @@
 
 const API = {
 
-  // Base URL — points to XAMPP Apache (PHP backend)
-  // Access the app via http://localhost/hobbyloop/ for best results
+  // Base URL — relative path, works when served via XAMPP Apache
   BASE: 'http://localhost/hobbyloop/api',
+  // BASE: '/hobbyloop/api',
 
   // ── Token management ──
 
@@ -60,6 +60,11 @@ const API = {
   post(path, body)    { return this.request('POST', path, body); },
   put(path, body)     { return this.request('PUT', path, body); },
   del(path, body)     { return this.request('DELETE', path, body); },
+
+  // ── Analytics tracking (fire-and-forget) ──
+  track(action, data = {}) {
+    this.request('POST', '/analytics/track.php', { action, ...data }).catch(() => {});
+  },
 
   // ── HTML escape for safe innerHTML insertion ──
   esc(str) {

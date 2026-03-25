@@ -40,6 +40,7 @@ const Auth = {
 
     API.setToken(res.data.token);
     Storage.saveSession(res.data.user);
+    API.track('login');
     Toast.show(`Welcome back, ${res.data.user.first_name}!`, '✓');
     setTimeout(() => this.enterApp(res.data.user), 400);
   },
@@ -100,11 +101,12 @@ const Auth = {
     const heroH2 = document.querySelector('.hero-text h2');
     if (heroH2) heroH2.textContent = greeting + ', ' + firstName;
 
-    // Load cart and orders from server
-    await Promise.all([State.loadCart(), State.loadOrders()]);
+    // Load cart, orders, and wishlist from server
+    await Promise.all([State.loadCart(), State.loadOrders(), State.loadWishlist()]);
   },
 
   async logout() {
+    API.track('logout');
     await API.post('/auth/logout.php');
     API.clearToken();
     Storage.clearSession();

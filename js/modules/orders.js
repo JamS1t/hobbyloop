@@ -43,7 +43,8 @@ const Orders = {
             <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${o.items.reduce((s,i)=>s+i.qty,0)} item(s)</div>
           </div>
         </div>
-        ${o.tracking ? `<div style="font-size:12px;color:var(--text-muted);margin-top:8px;">Tracking: <strong>${API.esc(o.tracking)}</strong> via ${API.esc(o.courier)}</div>` : ''}
+        ${o.tracking ? `<div style="font-size:12px;color:var(--text-muted);margin-top:8px;">📦 Tracking: <strong>${API.esc(o.tracking)}</strong> via ${API.esc(o.courier)}</div>` : ''}
+        ${o.estimated_delivery ? `<div style="font-size:12px;color:var(--text-muted);margin-top:4px;">🚚 Estimated delivery: <strong>${new Date(o.estimated_delivery).toLocaleDateString('en-PH', {month:'short',day:'numeric',year:'numeric'})}</strong></div>` : ''}
         <div class="order-row-ft">
           <span style="font-size:13px;color:var(--text-muted);">Total</span>
           <span class="order-total" style="color:var(--teal);">₱${o.total.toLocaleString()}</span>
