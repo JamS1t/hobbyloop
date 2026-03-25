@@ -4,8 +4,9 @@
 
 const API = {
 
-  // Base URL — adjust if project is in a subdirectory
-  BASE: '/hobbyloop/api',
+  // Base URL — points to XAMPP Apache (PHP backend)
+  // Access the app via http://localhost/hobbyloop/ for best results
+  BASE: 'http://localhost/hobbyloop/api',
 
   // ── Token management ──
 
