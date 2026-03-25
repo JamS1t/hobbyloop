@@ -10,8 +10,8 @@ const State = {
   orders: [],        // completed orders
   activeCategory: 'all',
   searchQuery: '',
-  notifCount: 4,     // unread count
-  following: new Set(),
+  notifCount: 0,     // unread count (loaded from server)
+  currentUser: null, // set on login — { id, first_name, last_name, avatar_initials, avatar_color, ... }
 
   // ── Cart computed helpers (work on local cache) ──
 

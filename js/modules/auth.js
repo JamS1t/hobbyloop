@@ -80,6 +80,7 @@ const Auth = {
   },
 
   async enterApp(user) {
+    State.currentUser = user;
     Nav.goPage('app');
     Nav.goTab('dashboard');
     Dashboard.render();
@@ -109,6 +110,8 @@ const Auth = {
     Storage.clearSession();
     State.cart = [];
     State.orders = [];
+    State.currentUser = null;
+    State.notifCount = 0;
     Cart.updateBadge();
     Toast.show('Signed out. See you soon!', '✓');
     setTimeout(() => Nav.goPage('login'), 500);
