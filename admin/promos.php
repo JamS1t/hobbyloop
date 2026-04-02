@@ -14,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $discount_value = (float) ($_POST['discount_value'] ?? 0);
         $min_order      = ($_POST['min_order'] ?? '') !== '' ? (float) $_POST['min_order'] : null;
         $max_uses       = ($_POST['max_uses'] ?? '') !== '' ? (int) $_POST['max_uses'] : null;
+        $valid_from     = ($_POST['valid_from'] ?? '') ?: null;
         $expires_at     = ($_POST['expires_at'] ?? '') ?: null;
         $is_active      = isset($_POST['is_active']) ? 1 : 0;
 
@@ -31,17 +32,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     header('Location: /hobbyloop/admin/promos.php'); exit;
                 }
                 $pdo->prepare("
-                    INSERT INTO promo_codes (code, discount_type, discount_value, min_order, max_uses, expires_at, is_active)
-                    VALUES (?,?,?,?,?,?,?)
-                ")->execute([$code, $discount_type, $discount_value, $min_order, $max_uses, $expires_at, $is_active]);
+                    INSERT INTO promo_codes (code, discount_type, discount_value, min_order, max_uses, valid_from, expires_at, is_active)
+                    VALUES (?,?,?,?,?,?,?,?)
+                ")->execute([$code, $discount_type, $discount_value, $min_order, $max_uses, $valid_from, $expires_at, $is_active]);
                 log_admin_action($pdo, 'create', 'promo_code', null, ['code' => $code]);
                 flash('success', "Promo code \"$code\" created.");
             } else {
                 $pdo->prepare("
                     UPDATE promo_codes SET code=?, discount_type=?, discount_value=?,
-                        min_order=?, max_uses=?, expires_at=?, is_active=?
+                        min_order=?, max_uses=?, valid_from=?, expires_at=?, is_active=?
                     WHERE id=?
-                ")->execute([$code, $discount_type, $discount_value, $min_order, $max_uses, $expires_at, $is_active, $id]);
+                ")->execute([$code, $discount_type, $discount_value, $min_order, $max_uses, $valid_from, $expires_at, $is_active, $id]);
                 log_admin_action($pdo, 'edit', 'promo_code', $id, ['code' => $code]);
                 flash('success', "Promo code updated.");
             }
@@ -191,6 +192,13 @@ require_once __DIR__ . '/includes/sidebar.php';
                 <input type="number" name="max_uses" min="1"
                        value="<?= $edit_promo['max_uses'] ?? '' ?>" placeholder="Leave blank = unlimited">
             </div>
+            <div class="form-group">
+                <label>Valid From</label>
+                <input type="date" name="valid_from"
+                       value="<?= !empty($edit_promo['valid_from']) ? date('Y-m-d', strtotime($edit_promo['valid_from'])) : '' ?>">
+            </div>
+        </div>
+        <div class="form-row">
             <div class="form-group">
                 <label>Expiry Date</label>
                 <input type="date" name="expires_at"

@@ -15,12 +15,15 @@ if (!$email || !$password) {
     json_error('Email and password are required');
 }
 
-// Find user by email
+// Allow login by email address or username
+$field = strpos($email, '@') !== false ? 'email' : 'username';
+
+// Find user by email or username
 $stmt = $pdo->prepare("
-    SELECT id, first_name, last_name, email, password_hash, phone,
+    SELECT id, first_name, last_name, email, username, password_hash, phone,
            avatar_initials, avatar_color, role, admin_level,
            trust_badge, is_verified
-    FROM users WHERE email = ?
+    FROM users WHERE $field = ?
 ");
 $stmt->execute([$email]);
 $user = $stmt->fetch();
@@ -57,5 +60,6 @@ json_success([
         'admin_level'     => $user['admin_level'],
         'trust_badge'     => $user['trust_badge'],
         'is_verified'     => (int) $user['is_verified'],
+        'username'        => $user['username'],
     ]
 ]);

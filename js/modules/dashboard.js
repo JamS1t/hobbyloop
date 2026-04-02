@@ -61,14 +61,18 @@ const Dashboard = {
     const product = this.products.find(p => p.id === productId);
     if (!product) return;
     if (btn) { btn.textContent = 'Adding...'; btn.disabled = true; }
-    await State.addToCart(product);
-    if (btn) { btn.textContent = '✓ In Cart'; btn.classList.add('in-cart'); btn.disabled = false; }
-    Toast.show(`${product.name} added to cart`, '✓');
-    API.track('add_to_cart', { target_id: productId });
+    const ok = await State.addToCart(product);
+    if (btn) { btn.disabled = false; }
+    if (ok) {
+      if (btn) { btn.textContent = '✓ In Cart'; btn.classList.add('in-cart'); }
+      Toast.show(`${product.name} added to cart`, '✓');
+      API.track('add_to_cart', { target_id: productId });
+    } else {
+      if (btn) { btn.textContent = '+ Add'; }
+    }
   },
 
   async toggleWishlist(productId, btn) {
-    const wasWishlisted = State.isWishlisted(productId);
     if (btn) btn.disabled = true;
     const nowWishlisted = await State.toggleWishlist(productId);
     if (btn) {
@@ -76,7 +80,7 @@ const Dashboard = {
       btn.classList.toggle('wishlisted', nowWishlisted);
       btn.title = nowWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist';
     }
-    Toast.show(nowWishlisted ? 'Added to Wishlist' : 'Removed from Wishlist', nowWishlisted ? '♥' : '♡');
+    Toast.show(nowWishlisted ? 'Added to Wishlist' : 'Removed from Wishlist', '♥');
   },
 
   productCardHTML(p) {
@@ -107,7 +111,7 @@ const Dashboard = {
           <button class="pc-wishlist ${isWished ? 'wishlisted' : ''}"
             title="${isWished ? 'Remove from Wishlist' : 'Add to Wishlist'}"
             onclick="event.stopPropagation(); Dashboard.toggleWishlist(${p.id}, this);">
-            ${isWished ? '♥' : '♡'}
+            ♥
           </button>
         </div>
         <div class="pc-body">

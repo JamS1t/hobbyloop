@@ -12,6 +12,7 @@ $firstName = trim($body['first_name'] ?? '');
 $lastName  = trim($body['last_name'] ?? '');
 $email     = trim($body['email'] ?? '');
 $password  = $body['password'] ?? '';
+$username  = isset($body['username']) ? trim($body['username']) : null;
 
 // Validation
 if (!$firstName || !$lastName) {
@@ -22,6 +23,20 @@ if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
 }
 if (strlen($password) < 8) {
     json_error('Password must be at least 8 characters');
+}
+
+// Validate username if provided
+if ($username !== null && $username !== '') {
+    if (!preg_match('/^[a-zA-Z0-9._]{3,50}$/', $username)) {
+        json_error('Username must be 3-50 characters and contain only letters, numbers, dots, or underscores');
+    }
+    $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ?");
+    $stmt->execute([$username]);
+    if ($stmt->fetch()) {
+        json_error('That username is already taken');
+    }
+} else {
+    $username = null;
 }
 
 // Check if email already exists
@@ -36,15 +51,16 @@ $hash = password_hash($password, PASSWORD_BCRYPT);
 $initials = strtoupper(mb_substr($firstName, 0, 1) . mb_substr($lastName, 0, 1));
 
 $stmt = $pdo->prepare("
-    INSERT INTO users (first_name, last_name, email, password_hash, avatar_initials, avatar_color, role)
-    VALUES (?, ?, ?, ?, ?, '#0D7C6E', 'buyer')
+    INSERT INTO users (first_name, last_name, email, password_hash, avatar_initials, avatar_color, role, username)
+    VALUES (?, ?, ?, ?, ?, '#0D7C6E', 'buyer', ?)
 ");
 $stmt->execute([
     $firstName,
     $lastName,
     $email,
     $hash,
-    $initials
+    $initials,
+    $username
 ]);
 $userId = (int) $pdo->lastInsertId();
 
@@ -68,5 +84,6 @@ json_success([
         'role'            => 'buyer',
         'trust_badge'     => 'New Member',
         'is_verified'     => 0,
+        'username'        => $username,
     ]
 ], 201);

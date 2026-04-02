@@ -17,6 +17,21 @@ const ProductDetail = {
     this.currentProduct = res.data;
     this.render();
     API.track('product_view', { target_id: productId });
+
+    // Fetch and inject variants
+    const varRes = await API.get('/products/variants.php?product_id=' + productId);
+    if (varRes.success && varRes.variants && varRes.variants.length > 0) {
+      let variantsHtml = '<div class="product-variants"><h4>Available Variants</h4><div class="variant-options">';
+      varRes.variants.forEach(v => {
+        variantsHtml += `<span class="variant-pill">${API.esc(v.variant_name)}: ${API.esc(v.variant_value)}`;
+        if (v.price_modifier != 0) variantsHtml += ` (${v.price_modifier > 0 ? '+' : ''}&#8369;${v.price_modifier})`;
+        variantsHtml += '</span>';
+      });
+      variantsHtml += '</div></div>';
+      // Insert variants before the actions row
+      const actionsEl = container.querySelector('.pd-actions');
+      if (actionsEl) actionsEl.insertAdjacentHTML('beforebegin', variantsHtml);
+    }
   },
 
   render() {
@@ -128,6 +143,8 @@ const ProductDetail = {
           </div>
 
           <div class="pd-condition">Condition: <strong>${p.cond}</strong></div>
+          ${p.sku ? `<p class="product-meta"><strong>SKU:</strong> ${API.esc(p.sku)}</p>` : ''}
+          ${p.brand ? `<p class="product-meta"><strong>Brand:</strong> ${API.esc(p.brand)}</p>` : ''}
 
           <div class="pd-rating">
             <span class="pd-stars">${stars(p.rating)}</span>
@@ -159,7 +176,7 @@ const ProductDetail = {
             <button class="pd-wishlist-btn ${isWished ? 'wishlisted' : ''}"
               title="${isWished ? 'Remove from Wishlist' : 'Save to Wishlist'}"
               onclick="ProductDetail.toggleWishlist(this)">
-              ${isWished ? '♥' : '♡'}
+              ♥
             </button>
           </div>
 
@@ -239,15 +256,17 @@ const ProductDetail = {
       btn.classList.toggle('wishlisted', nowWishlisted);
       btn.title = nowWishlisted ? 'Remove from Wishlist' : 'Save to Wishlist';
     }
-    Toast.show(nowWishlisted ? 'Added to Wishlist' : 'Removed from Wishlist', nowWishlisted ? '♥' : '♡');
+    Toast.show(nowWishlisted ? 'Added to Wishlist' : 'Removed from Wishlist', '♥');
   },
 
   async addToCart() {
     if (!this.currentProduct) return;
     if (!State.inCart(this.currentProduct.id)) {
-      await State.addToCart(this.currentProduct);
-      Toast.show(this.currentProduct.name + ' added to cart', '✓');
-      API.track('add_to_cart', { target_id: this.currentProduct.id });
+      const ok = await State.addToCart(this.currentProduct);
+      if (ok) {
+        Toast.show(this.currentProduct.name + ' added to cart', '✓');
+        API.track('add_to_cart', { target_id: this.currentProduct.id });
+      }
     }
     this.render();
   },

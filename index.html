@@ -112,6 +112,11 @@
           </div>
         </div>
         <div class="form-group">
+            <label for="signup-username">Username (optional)</label>
+            <input type="text" id="signup-username" placeholder="Choose a username" pattern="[a-zA-Z0-9._]{3,50}">
+            <small class="form-hint">Letters, numbers, dots, underscores (3-50 chars)</small>
+        </div>
+        <div class="form-group">
           <label class="form-label">Email address</label>
           <div class="form-input-wrap">
             <span class="form-input-icon">✉</span>
@@ -414,6 +419,28 @@
                 <div class="form-group"><label class="form-label">City *</label><input class="form-input" id="ship-city" placeholder="Quezon City"></div>
                 <div class="form-group"><label class="form-label">ZIP *</label><input class="form-input" id="ship-zip" placeholder="1108"></div>
               </div>
+              <div class="billing-section" style="margin-top: 1.5rem;">
+                <label class="checkbox-label" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;">
+                    <input type="checkbox" id="billing-same" checked onchange="Checkout.toggleBilling()">
+                    <span>Billing address same as shipping</span>
+                </label>
+                <div id="billing-fields" style="display:none;">
+                    <div class="form-group">
+                        <label>Billing Address</label>
+                        <input type="text" id="billing-address" placeholder="Billing street address">
+                    </div>
+                    <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                        <div class="form-group">
+                            <label>Billing City</label>
+                            <input type="text" id="billing-city" placeholder="City">
+                        </div>
+                        <div class="form-group">
+                            <label>Billing ZIP</label>
+                            <input type="text" id="billing-zip" placeholder="ZIP Code">
+                        </div>
+                    </div>
+                </div>
+              </div>
             </div>
             <div class="checkout-nav-btns">
               <button class="btn btn-ghost" onclick="Checkout.goStep(1)">← Back to Cart</button>
@@ -510,7 +537,7 @@
 
       <!-- ════════ TAB: WISHLIST ════════ -->
       <div class="tab-panel" data-tab="wishlist">
-        <div class="orders-body">
+        <div class="dashboard-body">
           <div class="section-hd" style="margin-bottom:24px;">
             <div class="section-hd-title">♥ My Wishlist</div>
           </div>
@@ -594,6 +621,8 @@
   // Wishlist — renders wishlisted products
   // ══════════════════════════════════════════
   const Wishlist = {
+    _products: [],
+
     async render() {
       const grid = document.getElementById('wishlist-grid');
       if (!grid) return;
@@ -601,9 +630,10 @@
 
       const res = await API.get('/wishlist/index.php');
       if (!res.success || res.data.length === 0) {
+        this._products = [];
         grid.innerHTML = `
           <div class="empty-state">
-            <div class="empty-icon" style="font-size:48px;opacity:0.3;">♥</div>
+            <div class="empty-icon" style="font-size:48px;opacity:0.3;">♡</div>
             <div class="empty-title">Your wishlist is empty</div>
             <div class="empty-sub">Heart products on the dashboard to save them here.</div>
             <button class="btn btn-primary-sm" style="margin-top:16px;" onclick="Nav.goTab('dashboard'); Dashboard.render();">Browse Items</button>
@@ -611,8 +641,9 @@
         return;
       }
 
+      this._products = res.data;
       grid.innerHTML = res.data.map(p => {
-        const isWished = true; // all items here are wishlisted
+        const inCart = State.inCart(p.id);
         const lowStock = p.stock_qty > 0 && p.stock_qty <= 5;
         const outOfStock = p.stock_qty === 0;
         const badge = p.badge === 'hot' ? '<span class="pill pill-coral">Hot</span>'
@@ -626,30 +657,55 @@
           <div class="product-card" onclick="ProductDetail.open(${p.id})">
             <div class="pc-img">
               ${p.img
-                ? `<img src="${p.img}" alt="${p.name}" class="pc-photo" loading="lazy"
+                ? `<img src="${p.img}" alt="${API.esc(p.name)}" class="pc-photo" loading="lazy"
                        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
                    <div class="pc-img-fallback" style="display:none;"><div class="pc-img-bg" style="background:${p.bg};"></div><span class="pc-emoji">${p.name.charAt(0)}</span></div>`
                 : `<div class="pc-img-bg" style="background:${p.bg};"></div><span class="pc-emoji">${p.name.charAt(0)}</span>`}
               ${badge || stockBadge ? `<div class="pc-badges">${badge}${stockBadge}</div>` : ''}
               <button class="pc-wishlist wishlisted" title="Remove from Wishlist"
-                onclick="event.stopPropagation(); State.toggleWishlist(${p.id}).then(() => Wishlist.render());">♥</button>
+                onclick="event.stopPropagation(); Wishlist.toggleWishlist(${p.id}, this);">♥</button>
             </div>
             <div class="pc-body">
-              <div class="pc-name">${p.name}</div>
-              <div class="pc-cond">${p.cond}</div>
+              <div class="pc-name">${API.esc(p.name)}</div>
+              <div class="pc-cond">${API.esc(p.cond)}</div>
               <div class="pc-foot">
                 <div>
                   <span class="pc-price">₱${p.price.toLocaleString()}</span>
                   ${p.orig ? `<span class="pc-price-orig">₱${p.orig.toLocaleString()}</span>` : ''}
                 </div>
-                <button class="pc-add ${outOfStock ? 'disabled' : ''}" ${outOfStock ? 'disabled' : ''}
-                  onclick="event.stopPropagation(); State.addToCart(${JSON.stringify({id:p.id,name:p.name,price:p.price,bg:p.bg,img:p.img,cond:p.cond,seller:p.seller})}).then(() => Toast.show('${p.name.replace(/'/g,"\\'")} added to cart','✓'))">
-                  ${outOfStock ? 'Sold Out' : '+ Add'}
+                <button class="pc-add ${inCart ? 'in-cart' : ''} ${outOfStock ? 'disabled' : ''}" ${outOfStock ? 'disabled' : ''}
+                  onclick="event.stopPropagation(); Wishlist.addToCart(${p.id}, this)">
+                  ${inCart ? '✓ In Cart' : outOfStock ? 'Sold Out' : '+ Add'}
                 </button>
               </div>
             </div>
           </div>`;
       }).join('');
+    },
+
+    async toggleWishlist(productId, btn) {
+      if (btn) btn.disabled = true;
+      const nowWishlisted = await State.toggleWishlist(productId);
+      if (btn) btn.disabled = false;
+      if (!nowWishlisted) {
+        // Item was removed — re-render the wishlist to remove the card
+        this.render();
+      }
+      Toast.show(nowWishlisted ? 'Added to Wishlist' : 'Removed from Wishlist', '♥');
+    },
+
+    async addToCart(productId, btn) {
+      const p = this._products.find(x => x.id === productId);
+      if (!p) return;
+      if (btn) { btn.textContent = 'Adding...'; btn.disabled = true; }
+      const ok = await State.addToCart({ id: p.id, name: p.name, price: p.price, bg: p.bg, img: p.img, cond: p.cond, seller: p.seller });
+      if (btn) { btn.disabled = false; }
+      if (ok) {
+        if (btn) { btn.textContent = '✓ In Cart'; btn.classList.add('in-cart'); }
+        Toast.show(p.name + ' added to cart', '✓');
+      } else {
+        if (btn) { btn.textContent = '+ Add'; }
+      }
     }
   };
 

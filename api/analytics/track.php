@@ -16,7 +16,8 @@ $user_id = $user ? $user['id'] : null;
 
 $valid_actions = [
     'page_view', 'product_view', 'search',
-    'add_to_cart', 'checkout_complete', 'login', 'logout'
+    'add_to_cart', 'remove_from_cart', 'checkout_start', 'checkout_complete',
+    'cart_abandon', 'login', 'logout'
 ];
 
 $action = isset($body['action']) ? $body['action'] : '';

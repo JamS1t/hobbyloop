@@ -223,7 +223,7 @@
 
 .checkout-grid { display: grid; grid-template-columns: 1fr 380px; gap: 24px; }
 
-.checkout-step { animation: fadeUp var(--t-slow) var(--ease) both; max-width: 700px; }
+.checkout-step { animation: fadeUp var(--t-slow) var(--ease) both; max-width: 700px; margin: 0 auto; }
 .checkout-nav-btns {
   display: flex; justify-content: space-between; align-items: center;
   margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--ink-06);

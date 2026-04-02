@@ -6,3 +6,7 @@ Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
 RewriteEngine On
 RewriteCond %{REQUEST_METHOD} OPTIONS
 RewriteRule ^ - [R=204,L]
+
+# Pass Authorization header to PHP (stripped by Apache CGI/FastCGI by default)
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

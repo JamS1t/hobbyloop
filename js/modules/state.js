@@ -49,7 +49,7 @@ const State = {
     const res = await API.post('/cart/add.php', { product_id: product.id });
     if (!res.success) {
       Toast.show(res.error || 'Failed to add to cart', 'i');
-      return;
+      return false;
     }
     // Update local cache
     const existing = this.cart.find(i => i.product.id === product.id);
@@ -60,6 +60,7 @@ const State = {
     }
     Cart.render();
     Cart.updateBadge();
+    return true;
   },
 
   async removeFromCart(productId) {
@@ -69,6 +70,7 @@ const State = {
       return;
     }
     this.cart = this.cart.filter(i => i.product.id !== productId);
+    API.track('remove_from_cart', { product_id: productId });
     Cart.render();
     Cart.updateBadge();
   },

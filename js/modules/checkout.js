@@ -12,6 +12,7 @@ const Checkout = {
     this.appliedPromo = null;
     Nav.goTab('checkout');
     Nav.setNavActive('checkout');
+    API.track('checkout_start');
     this.goStep(1);
   },
 
@@ -320,6 +321,12 @@ const Checkout = {
       <div class="op-row total"><span>Total</span><span>₱${total.toLocaleString()}</span></div>`;
   },
 
+  toggleBilling() {
+    const same = document.getElementById('billing-same')?.checked;
+    const fields = document.getElementById('billing-fields');
+    if (fields) fields.style.display = same ? 'none' : 'block';
+  },
+
   selectPayment(label) {
     document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
     label.classList.add('selected');
@@ -352,6 +359,14 @@ const Checkout = {
     const orderBtn = document.querySelector('#checkout-step-4 .btn-primary');
     if (orderBtn) { orderBtn.disabled = true; orderBtn.textContent = 'Placing order...'; }
 
+    const billingSame = document.getElementById('billing-same')?.checked;
+    const billingData = {};
+    if (!billingSame) {
+      billingData.billing_address = document.getElementById('billing-address')?.value.trim();
+      billingData.billing_city = document.getElementById('billing-city')?.value.trim();
+      billingData.billing_zip = document.getElementById('billing-zip')?.value.trim();
+    }
+
     const res = await API.post('/checkout/place-order.php', {
       shipping_name: s.name,
       shipping_email: s.email,
@@ -361,6 +376,7 @@ const Checkout = {
       shipping_zip: s.zip,
       payment_method: this.selectedPayment,
       promo_code: this.appliedPromo ? this.appliedPromo.code : null,
+      ...billingData,
     });
 
     if (!res.success) {

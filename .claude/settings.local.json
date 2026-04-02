@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(C:/xampp/php/php.exe -r \"echo 'seller123: ' . password_hash\\('seller123', PASSWORD_BCRYPT\\) . PHP_EOL; echo 'password123: ' . password_hash\\('password123', PASSWORD_BCRYPT\\) . PHP_EOL; echo 'admin123: ' . password_hash\\('admin123', PASSWORD_BCRYPT\\) . PHP_EOL;\")",
+      "Bash(cp:*)",
+      "Bash(rsync -a --exclude='.git' \"/c/Users/James Carl/Documents/SCHOOL ACTIVITIES/SIR LOZANO/hobbyloop/\" \"/c/xampp/htdocs/hobbyloop/\")",
+      "Bash(xcopy \"C:\\\\Users\\\\James Carl\\\\Documents\\\\SCHOOL ACTIVITIES\\\\SIR LOZANO\\\\hobbyloop\" \"C:\\\\xampp\\\\htdocs\\\\hobbyloop\" /E /I /Y /EXCLUDE:\"C:\\\\Users\\\\James Carl\\\\Documents\\\\SCHOOL ACTIVITIES\\\\SIR LOZANO\\\\hobbyloop\\\\xcopy_exclude.txt\")",
+      "Bash(powershell -Command \"\n\\\\$src = 'C:\\\\Users\\\\James Carl\\\\Documents\\\\SCHOOL ACTIVITIES\\\\SIR LOZANO\\\\hobbyloop'\n\\\\$dst = 'C:\\\\xampp\\\\htdocs\\\\hobbyloop'\nCopy-Item -Path \\\\$src -Destination \\\\$dst -Recurse -Force -Exclude '.git'\nWrite-Host 'Done'\n\" 2>&1)",
+      "Bash(xargs cat:*)",
+      "Bash(powershell -Command \"\nCopy-Item 'C:\\\\Users\\\\James Carl\\\\Documents\\\\SCHOOL ACTIVITIES\\\\SIR LOZANO\\\\hobbyloop\\\\js\\\\modules\\\\state.js' 'C:\\\\xampp\\\\htdocs\\\\hobbyloop\\\\js\\\\modules\\\\state.js' -Force\nCopy-Item 'C:\\\\Users\\\\James Carl\\\\Documents\\\\SCHOOL ACTIVITIES\\\\SIR LOZANO\\\\hobbyloop\\\\js\\\\modules\\\\dashboard.js' 'C:\\\\xampp\\\\htdocs\\\\hobbyloop\\\\js\\\\modules\\\\dashboard.js' -Force\nCopy-Item 'C:\\\\Users\\\\James Carl\\\\Documents\\\\SCHOOL ACTIVITIES\\\\SIR LOZANO\\\\hobbyloop\\\\js\\\\modules\\\\product-detail.js' 'C:\\\\xampp\\\\htdocs\\\\hobbyloop\\\\js\\\\modules\\\\product-detail.js' -Force\nWrite-Host 'Done'\n\")",
+      "Bash(powershell -Command \"Copy-Item 'C:\\\\Users\\\\James Carl\\\\Documents\\\\SCHOOL ACTIVITIES\\\\SIR LOZANO\\\\hobbyloop\\\\api\\\\.htaccess' 'C:\\\\xampp\\\\htdocs\\\\hobbyloop\\\\api\\\\.htaccess' -Force\")",
+      "Bash(powershell -Command \"Get-Content 'C:\\\\xampp\\\\htdocs\\\\hobbyloop\\\\api\\\\.htaccess'\")",
+      "Bash(powershell -Command \"Copy-Item 'C:\\\\Users\\\\James Carl\\\\Documents\\\\SCHOOL ACTIVITIES\\\\SIR LOZANO\\\\hobbyloop\\\\api\\\\products\\\\categories.php' 'C:\\\\xampp\\\\htdocs\\\\hobbyloop\\\\api\\\\products\\\\categories.php' -Force\")",
+      "Bash(find 'C:/Users/James Carl/Documents/SCHOOL ACTIVITIES/SIR LOZANO/hobbyloop/' -name test* -o -name *test*)",
+      "Bash(xxd)",
+      "Bash(cd:*)"
+    ]
+  }
+}

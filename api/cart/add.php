@@ -13,7 +13,7 @@ if ($product_id <= 0) {
 }
 
 // Check product exists and is active
-$stmt = $pdo->prepare("SELECT id, stock_qty FROM products WHERE id = ? AND is_active = 1");
+$stmt = $pdo->prepare("SELECT id, name, stock_qty FROM products WHERE id = ? AND is_active = 1");
 $stmt->execute([$product_id]);
 $product = $stmt->fetch();
 if (!$product) {
@@ -21,6 +21,16 @@ if (!$product) {
 }
 if ($product['stock_qty'] <= 0) {
     json_error('Product is out of stock');
+}
+
+// Check current cart qty — don't exceed stock
+$stmt = $pdo->prepare("SELECT qty FROM cart_items WHERE user_id = ? AND product_id = ?");
+$stmt->execute([$user['id'], $product_id]);
+$current = $stmt->fetch();
+$currentQty = $current ? (int)$current['qty'] : 0;
+
+if ($currentQty + 1 > $product['stock_qty']) {
+    json_error('Only ' . $product['stock_qty'] . ' available in stock');
 }
 
 // Upsert — if already in cart, increment qty

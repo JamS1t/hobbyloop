@@ -52,6 +52,7 @@ const Auth = {
 
     const fname = document.getElementById('signup-fname').value.trim();
     const lname = document.getElementById('signup-lname').value.trim();
+    const username = document.getElementById('signup-username')?.value.trim() || null;
     const email = document.getElementById('signup-email').value.trim();
     const password = document.getElementById('signup-password').value.trim();
 
@@ -65,6 +66,7 @@ const Auth = {
     const res = await API.post('/auth/register.php', {
       first_name: fname,
       last_name: lname,
+      username,
       email,
       password
     });
@@ -82,6 +84,7 @@ const Auth = {
 
   async enterApp(user) {
     State.currentUser = user;
+    State.currentUser.username = user.username || null;
     Nav.goPage('app');
     Nav.goTab('dashboard');
     Dashboard.render();

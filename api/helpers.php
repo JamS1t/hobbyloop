@@ -52,7 +52,7 @@ function get_auth_user(PDO $pdo): ?array {
     $token = $matches[1];
 
     $stmt = $pdo->prepare("
-        SELECT u.id, u.first_name, u.last_name, u.email, u.phone,
+        SELECT u.id, u.first_name, u.last_name, u.email, u.username, u.phone,
                u.avatar_initials, u.avatar_color, u.role, u.admin_level,
                u.trust_badge, u.is_verified
         FROM sessions s

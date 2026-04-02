@@ -8,6 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 $user = require_auth($pdo);
-$user['name'] = $user['first_name'] . ' ' . $user['last_name'];
+$user['name']     = $user['first_name'] . ' ' . $user['last_name'];
+$user['username'] = $user['username'] ?? null;
 
 json_success(['user' => $user]);

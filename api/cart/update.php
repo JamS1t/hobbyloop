@@ -27,6 +27,15 @@ $params = [];
 
 if (isset($body['qty'])) {
     $qty = max(1, (int)$body['qty']);
+
+    // Check stock limit
+    $stmt = $pdo->prepare("SELECT stock_qty, name FROM products WHERE id = ?");
+    $stmt->execute([$product_id]);
+    $product = $stmt->fetch();
+    if ($product && $qty > $product['stock_qty']) {
+        json_error('Only ' . $product['stock_qty'] . ' of ' . $product['name'] . ' available in stock');
+    }
+
     $sets[] = 'qty = ?';
     $params[] = $qty;
 }

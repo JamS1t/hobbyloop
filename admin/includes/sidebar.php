@@ -12,6 +12,7 @@ $_nav = [
     ['file' => 'inventory.php', 'label' => 'Inventory',  'icon' => '◧'],
     ['file' => 'community.php', 'label' => 'Community',  'icon' => '◎'],
     ['file' => 'analytics.php', 'label' => 'Analytics',  'icon' => '◈'],
+    ['file' => 'reports.php',   'label' => 'Reports',    'icon' => '◩'],
     ['file' => 'promos.php',    'label' => 'Promos',     'icon' => '◆'],
     ['file' => 'reviews.php',   'label' => 'Reviews',    'icon' => '★'],
     ['file' => 'feedback.php',  'label' => 'Feedback',   'icon' => '◉'],

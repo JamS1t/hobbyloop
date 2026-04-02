@@ -14,6 +14,7 @@ CREATE TABLE users (
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
+    username VARCHAR(50) UNIQUE DEFAULT NULL,
     password_hash VARCHAR(255) NOT NULL,
     phone VARCHAR(20),
     avatar_initials VARCHAR(5),
@@ -31,6 +32,7 @@ CREATE TABLE user_addresses (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     label VARCHAR(30) DEFAULT 'Home',
+    address_type ENUM('shipping','billing') DEFAULT 'shipping',
     street VARCHAR(255) NOT NULL,
     city VARCHAR(100) NOT NULL,
     province VARCHAR(100),
@@ -157,6 +159,9 @@ CREATE TABLE payments (
     status ENUM('pending','completed','failed','refunded') DEFAULT 'pending',
     amount DECIMAL(10,2) NOT NULL,
     billing_name VARCHAR(100),
+    billing_address VARCHAR(255) DEFAULT NULL,
+    billing_city VARCHAR(100) DEFAULT NULL,
+    billing_zip VARCHAR(10) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
@@ -200,6 +205,7 @@ CREATE TABLE product_suppliers (
     product_id INT NOT NULL,
     supplier_id INT NOT NULL,
     reorder_level INT DEFAULT 5,
+    lead_time_days INT DEFAULT 7,
     PRIMARY KEY (product_id, supplier_id),
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
     FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE CASCADE
@@ -315,6 +321,7 @@ CREATE TABLE promo_codes (
     max_uses INT DEFAULT NULL,
     used_count INT DEFAULT 0,
     is_active TINYINT(1) DEFAULT 1,
+    valid_from DATE DEFAULT NULL,
     expires_at DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
@@ -380,14 +387,14 @@ INSERT INTO categories (id, label, sort_order) VALUES
 
 -- ── Users (sellers + demo buyer + admin) ──
 -- All passwords are bcrypt hashed. Seller passwords: 'seller123', Demo: 'password123', Admin: 'admin123'
-INSERT INTO users (id, first_name, last_name, email, password_hash, phone, avatar_initials, avatar_color, role, admin_level, trust_badge, is_verified) VALUES
-(1, 'Jerome',  'Lim',     'jerome.lim@hobbyloop.ph',    '$2y$10$A9p7RsX32CLBmn9ggLQ5ROkTT3Kiazb/VI9whx4NfQ6zFQtd94n/u', '+63 917 123 4501', 'JL', '#D97706', 'seller', NULL,    'Super Seller', 1),
-(2, 'Maria',   'Reyes',   'maria.reyes@hobbyloop.ph',   '$2y$10$A9p7RsX32CLBmn9ggLQ5ROkTT3Kiazb/VI9whx4NfQ6zFQtd94n/u', '+63 917 123 4502', 'MR', '#059669', 'seller', NULL,    'Fast Ship',    1),
-(3, 'Tony',    'Cruz',    'tony.cruz@hobbyloop.ph',     '$2y$10$A9p7RsX32CLBmn9ggLQ5ROkTT3Kiazb/VI9whx4NfQ6zFQtd94n/u', '+63 917 123 4503', 'TC', '#7C3AED', 'seller', NULL,    'Verified',     1),
-(4, 'Sofia',   'Navarro', 'sofia.navarro@hobbyloop.ph', '$2y$10$A9p7RsX32CLBmn9ggLQ5ROkTT3Kiazb/VI9whx4NfQ6zFQtd94n/u', '+63 917 123 4504', 'SN', '#DC2626', 'seller', NULL,    'Pro Seller',   1),
-(5, 'Ryan',    'Santos',  'ryan.santos@hobbyloop.ph',   '$2y$10$A9p7RsX32CLBmn9ggLQ5ROkTT3Kiazb/VI9whx4NfQ6zFQtd94n/u', '+63 917 123 4505', 'RS', '#0284C7', 'seller', NULL,    'Trusted',      1),
-(6, 'Alex',    'Kim',     'alex.kim@hobbyloop.ph',      '$2y$10$LJErKqco/jla5OmL3fD2rOZ0NoQC4XqZz0D28/.Lm97AUj2QSmJum', '+63 912 345 6789', 'AK', '#0D7C6E', 'buyer',  NULL,    'New Member',   0),
-(7, 'Admin',   'User',    'admin@hobbyloop.ph',         '$2y$10$jzCaeKMAL6ZtAL4H4n9ccOkad9syuitBY4Hqo18gSkxokrKASpYda', '+63 917 000 0000', 'AU', '#0D7C6E', 'admin',  'super', 'Admin',        1);
+INSERT INTO users (id, first_name, last_name, email, username, password_hash, phone, avatar_initials, avatar_color, role, admin_level, trust_badge, is_verified) VALUES
+(1, 'Jerome',  'Lim',     'jerome.lim@hobbyloop.ph',    'jerome.lim',    '$2y$10$A9p7RsX32CLBmn9ggLQ5ROkTT3Kiazb/VI9whx4NfQ6zFQtd94n/u', '+63 917 123 4501', 'JL', '#D97706', 'seller', NULL,    'Super Seller', 1),
+(2, 'Maria',   'Reyes',   'maria.reyes@hobbyloop.ph',   'maria.reyes',   '$2y$10$A9p7RsX32CLBmn9ggLQ5ROkTT3Kiazb/VI9whx4NfQ6zFQtd94n/u', '+63 917 123 4502', 'MR', '#059669', 'seller', NULL,    'Fast Ship',    1),
+(3, 'Tony',    'Cruz',    'tony.cruz@hobbyloop.ph',     'tony.cruz',     '$2y$10$A9p7RsX32CLBmn9ggLQ5ROkTT3Kiazb/VI9whx4NfQ6zFQtd94n/u', '+63 917 123 4503', 'TC', '#7C3AED', 'seller', NULL,    'Verified',     1),
+(4, 'Sofia',   'Navarro', 'sofia.navarro@hobbyloop.ph', 'sofia.navarro', '$2y$10$A9p7RsX32CLBmn9ggLQ5ROkTT3Kiazb/VI9whx4NfQ6zFQtd94n/u', '+63 917 123 4504', 'SN', '#DC2626', 'seller', NULL,    'Pro Seller',   1),
+(5, 'Ryan',    'Santos',  'ryan.santos@hobbyloop.ph',   'ryan.santos',   '$2y$10$A9p7RsX32CLBmn9ggLQ5ROkTT3Kiazb/VI9whx4NfQ6zFQtd94n/u', '+63 917 123 4505', 'RS', '#0284C7', 'seller', NULL,    'Trusted',      1),
+(6, 'Alex',    'Kim',     'alex.kim@hobbyloop.ph',      'alex.kim',      '$2y$10$LJErKqco/jla5OmL3fD2rOZ0NoQC4XqZz0D28/.Lm97AUj2QSmJum', '+63 912 345 6789', 'AK', '#0D7C6E', 'buyer',  NULL,    'New Member',   0),
+(7, 'Admin',   'User',    'admin@hobbyloop.ph',         'admin',         '$2y$10$jzCaeKMAL6ZtAL4H4n9ccOkad9syuitBY4Hqo18gSkxokrKASpYda', '+63 917 000 0000', 'AU', '#0D7C6E', 'admin',  'super', 'Admin',        1);
 
 -- ── Sellers (extended profiles) ──
 INSERT INTO sellers (user_id, city, badge, total_sales, seller_rating, specialty_categories) VALUES
@@ -439,14 +446,14 @@ INSERT INTO products (id, seller_id, category_id, name, description, price, orig
 
 -- ── Notifications (for demo user Alex Kim, id=6) ──
 INSERT INTO notifications (user_id, icon, text, is_read, created_at) VALUES
-(6, '📦', '<strong>Your order #HL-2026-00291 has shipped!</strong> Tony Cruz sent your Breville Barista via J&T Express.',                  0, NOW() - INTERVAL 2 MINUTE),
-(6, '💰', '<strong>Price drop alert!</strong> Fujifilm X100V dropped ₱3,000 — it''s on your watchlist!',                                    0, NOW() - INTERVAL 14 MINUTE),
-(6, '⭐', '<strong>New review on your listing.</strong> Someone left a 5-star review on your Wacom Intuos listing.',                         0, NOW() - INTERVAL 1 HOUR),
-(6, '🤝', '<strong>Ryan Santos accepted your offer.</strong> MSR Hubba Hubba NX is ready to checkout!',                                     0, NOW() - INTERVAL 2 HOUR),
-(6, '💬', '<strong>Maria Reyes replied to your question</strong> about the Leica M6 condition.',                                             1, NOW() - INTERVAL 3 HOUR),
-(6, '✅', '<strong>Listing verified!</strong> Your Nintendo Switch OLED passed peer review and is now live.',                                 1, NOW() - INTERVAL 5 HOUR),
-(6, '🎉', '<strong>Welcome to HobbyLoop!</strong> Your account is fully set up. Start exploring 12,400+ items.',                             1, NOW() - INTERVAL 1 DAY),
-(6, '🏆', '<strong>You''re now a Trusted Buyer!</strong> 10 successful purchases with 5-star ratings.',                                     1, NOW() - INTERVAL 2 DAY);
+(6, '📦', 'Your order #HL-2026-00291 has shipped! Tony Cruz sent your Breville Barista via J&T Express.',                  0, NOW() - INTERVAL 2 MINUTE),
+(6, '💰', 'Price drop alert! Fujifilm X100V dropped ₱3,000 — it''s on your watchlist!',                                    0, NOW() - INTERVAL 14 MINUTE),
+(6, '⭐', 'New review on your listing. Someone left a 5-star review on your Wacom Intuos listing.',                         0, NOW() - INTERVAL 1 HOUR),
+(6, '🤝', 'Ryan Santos accepted your offer. MSR Hubba Hubba NX is ready to checkout!',                                     0, NOW() - INTERVAL 2 HOUR),
+(6, '💬', 'Maria Reyes replied to your question about the Leica M6 condition.',                                             1, NOW() - INTERVAL 3 HOUR),
+(6, '✅', 'Listing verified! Your Nintendo Switch OLED passed peer review and is now live.',                                 1, NOW() - INTERVAL 5 HOUR),
+(6, '🎉', 'Welcome to HobbyLoop! Your account is fully set up. Start exploring 12,400+ items.',                             1, NOW() - INTERVAL 1 DAY),
+(6, '🏆', 'You''re now a Trusted Buyer! 10 successful purchases with 5-star ratings.',                                     1, NOW() - INTERVAL 2 DAY);
 
 -- ── Community Posts ──
 INSERT INTO community_posts (id, user_id, text, tagged_product_id, likes_count, comments_count, created_at) VALUES
@@ -458,10 +465,10 @@ INSERT INTO community_posts (id, user_id, text, tagged_product_id, likes_count, 
 (6, 1, 'PSA for collectors: Protective sleeves are non-negotiable. Just pulled a near-mint charizard from a Ziploc bag. The penny sleeve alone can double resale value over 5 years.',                               27,   201, 67, NOW() - INTERVAL 8 HOUR);
 
 -- ── Promo Codes ──
-INSERT INTO promo_codes (code, discount_type, discount_value, min_order, max_uses, is_active, expires_at) VALUES
-('HOBBY10',  'percent', 10.00, 1000.00, 100, 1, '2026-12-31'),
-('WELCOME',  'fixed',   500.00, 2000.00, 50,  1, '2026-12-31'),
-('LOOP5',    'percent',  5.00,  500.00,  200, 1, '2026-12-31');
+INSERT INTO promo_codes (code, discount_type, discount_value, min_order, max_uses, is_active, valid_from, expires_at) VALUES
+('HOBBY10',  'percent', 10.00, 1000.00, 100, 1, '2025-01-01', '2026-12-31'),
+('WELCOME',  'fixed',   500.00, 2000.00, 50,  1, '2025-01-01', '2026-12-31'),
+('LOOP5',    'percent',  5.00,  500.00,  200, 1, '2025-01-01', '2026-12-31');
 
 -- ── Default like on post 4 by user 6 (Alex Kim liked Sofia's post) ──
 INSERT INTO post_likes (user_id, post_id) VALUES (6, 4);

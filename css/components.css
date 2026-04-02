@@ -262,6 +262,7 @@
 .empty-state {
   display: flex; flex-direction: column; align-items: center;
   justify-content: center; padding: 60px 20px; text-align: center;
+  grid-column: 1 / -1; min-height: 300px;
 }
 .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
 .empty-title { font-family: var(--font-display); font-size: 20px; margin-bottom: 8px; }
@@ -561,10 +562,11 @@
   box-shadow: 0 1px 6px rgba(0,0,0,0.15);
   cursor: pointer; font-size: 16px; display: flex; align-items: center;
   justify-content: center; transition: all var(--t-base) var(--ease);
-  color: var(--text-muted); line-height: 1;
+  color: rgba(0,0,0,0.25); line-height: 1;
+  -webkit-text-stroke: 1px rgba(0,0,0,0.3);
 }
-.pc-wishlist:hover { transform: scale(1.15); background: white; color: var(--coral); }
-.pc-wishlist.wishlisted { color: var(--coral); background: white; }
+.pc-wishlist:hover { transform: scale(1.15); background: white; color: var(--coral); -webkit-text-stroke: 1px var(--coral); }
+.pc-wishlist.wishlisted { color: var(--coral); background: white; -webkit-text-stroke: 0; }
 
 /* ── Wishlist Detail Page Button ── */
 .pd-wishlist-btn {
@@ -572,10 +574,11 @@
   border: 1.5px solid var(--ink-12); background: white;
   cursor: pointer; font-size: 20px; display: flex; align-items: center;
   justify-content: center; transition: all var(--t-base) var(--ease);
-  color: var(--text-muted); flex-shrink: 0;
+  color: rgba(0,0,0,0.25); flex-shrink: 0;
+  -webkit-text-stroke: 1.5px rgba(0,0,0,0.3);
 }
-.pd-wishlist-btn:hover { border-color: var(--coral); color: var(--coral); transform: scale(1.08); }
-.pd-wishlist-btn.wishlisted { color: var(--coral); border-color: var(--coral); }
+.pd-wishlist-btn:hover { border-color: var(--coral); color: var(--coral); transform: scale(1.08); -webkit-text-stroke: 1.5px var(--coral); }
+.pd-wishlist-btn.wishlisted { color: var(--coral); border-color: var(--coral); -webkit-text-stroke: 0; }
 
 /* ── Stock Badges ── */
 .pill-low-stock {

@@ -20,7 +20,10 @@ if (!in_array($payment_method, ['card','gcash','bank','cod'])) {
     json_error('Invalid payment method');
 }
 
-$promo_code = isset($body['promo_code']) ? strtoupper(trim($body['promo_code'])) : null;
+$promo_code      = isset($body['promo_code'])      ? strtoupper(trim($body['promo_code'])) : null;
+$billing_address = !empty($body['billing_address']) ? sanitize($body['billing_address'])    : null;
+$billing_city    = !empty($body['billing_city'])    ? sanitize($body['billing_city'])       : null;
+$billing_zip     = !empty($body['billing_zip'])     ? sanitize($body['billing_zip'])        : null;
 
 // ── Get selected cart items (server-side, not trusting client) ──
 $stmt = $pdo->prepare("
@@ -152,11 +155,13 @@ try {
     // 3. Create payment record
     $txn_id = strtoupper(substr(md5(uniqid()), 0, 12));
     $stmt = $pdo->prepare("
-        INSERT INTO payments (order_id, method, transaction_id, status, amount, billing_name)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO payments (order_id, method, transaction_id, status, amount, billing_name,
+                              billing_address, billing_city, billing_zip)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     $pay_status = ($payment_method === 'cod') ? 'pending' : 'completed';
-    $stmt->execute([$order_id, $payment_method, $txn_id, $pay_status, $total, sanitize($body['shipping_name'])]);
+    $stmt->execute([$order_id, $payment_method, $txn_id, $pay_status, $total,
+                    sanitize($body['shipping_name']), $billing_address, $billing_city, $billing_zip]);
 
     // 4. Create shipment
     $est_delivery = date('Y-m-d', strtotime('+5 days'));
@@ -183,7 +188,7 @@ try {
         INSERT INTO notifications (user_id, icon, text, is_read)
         VALUES (?, '🎉', ?, 0)
     ");
-    $notif_text = '<strong>Order ' . $order_number . ' confirmed!</strong> Your items are being prepared for shipment.';
+    $notif_text = 'Order ' . $order_number . ' confirmed! Your items are being prepared for shipment.';
     $stmt->execute([$user['id'], $notif_text]);
 
     // 7. Remove selected items from cart (keep unselected)

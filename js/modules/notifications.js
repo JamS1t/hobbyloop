@@ -76,6 +76,9 @@ const Notifications = {
     const badge = document.getElementById('notif-badge');
     if (!badge) return;
 
+    // Don't hit the API if the user isn't logged in yet
+    if (!API.getToken()) return;
+
     // Fetch from server only on the very first call (panel never opened yet)
     if (this._data.length === 0) {
       const res = await API.get('/notifications/list.php');
